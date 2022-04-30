@@ -6,7 +6,7 @@ export const Loader = ({ width, height }: LoaderProps) => {
   return (
     <svg
       role="status"
-      className={`ml-2 w-${width} h-${height} text-gray-200 animate-spin fill-blue-600`}
+      className={`ml-2 w-${width} h-${height} text-gray-200 animate-spin fill-indigo-600`}
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

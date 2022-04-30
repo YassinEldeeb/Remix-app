@@ -11,6 +11,16 @@ export async function getUserByEmail(email: User['email']) {
   return prisma.user.findUnique({ where: { email } });
 }
 
+export async function getUserAuthFactors(id: User['id']) {
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      smsFactorId: true,
+      totpFactorId: true,
+    },
+  });
+}
+
 export function enrollTotp(userId, totpFactorId) {
   return prisma.user.update({
     where: {
@@ -18,6 +28,17 @@ export function enrollTotp(userId, totpFactorId) {
     },
     data: {
       totpFactorId,
+    },
+  });
+}
+
+export function enrollSMS(userId, smsFactorId) {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      smsFactorId,
     },
   });
 }

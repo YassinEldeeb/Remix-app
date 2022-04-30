@@ -1,19 +1,10 @@
-# TaskOS
+# WorkOS + Remix
 
-Remix app 
-
-- color palette - use Radix colors
-- font
-- favicon
-- use dialog for creating tasks
-- show toast after creating a task
-
-- settings page
-  - Configure MFA
-  - change password
-- [] MFA
-- Login page
-  - Email me a Magic link instead
+- refactor Code
+  - returned data
+  - Types
+- forgot password functionality
+- SSO?
 
 ## Deployment
 

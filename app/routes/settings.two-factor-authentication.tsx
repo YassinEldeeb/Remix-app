@@ -1,6 +1,6 @@
 import { json } from '@remix-run/node';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { useActionData, useLoaderData, useTransition } from '@remix-run/react';
+import { useLoaderData } from '@remix-run/react';
 import {
   enrollSMS,
   enrollTotp,
@@ -8,9 +8,11 @@ import {
 } from '~/models/user.server';
 import { requireUser, requireUserId } from '~/utils/session.server';
 import { workos } from '~/utils/workos.server';
-import { SelectFactor } from '~/components/mfa/setup/select-factor';
-import { Verify } from '~/components/mfa/setup/verify';
-import { Activated } from '~/components/mfa/setup/activated';
+import {
+  SelectFactor,
+  Verify,
+  Activated,
+} from '~/components/settings/mfa/setup';
 import { Warning } from '~/components/shared/warning';
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -121,8 +123,6 @@ export const action: ActionFunction = async ({ request }) => {
 
 const MultiFactorAuthentication = () => {
   const data = useLoaderData();
-  const actionData = useActionData();
-  const transition = useTransition();
 
   return (
     <section className="my-10">
@@ -134,9 +134,9 @@ const MultiFactorAuthentication = () => {
       ) : null}
       <h1 className="text-2xl font">Set up two-factor authentication (2FA)</h1>
       <ol className="my-8 relative border-l-2 border-gray-200">
-        <SelectFactor actionData={actionData} transition={transition} />
-        <Verify actionData={actionData} transition={transition} />
-        <Activated actionData={actionData} />
+        <SelectFactor />
+        <Verify />
+        <Activated />
       </ol>
     </section>
   );

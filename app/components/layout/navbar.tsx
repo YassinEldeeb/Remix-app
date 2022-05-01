@@ -40,7 +40,7 @@ export function Navbar() {
                     </Disclosure.Button>
                   )}
                 </div>
-                <div className="flex-shrink-0 font-medium text-lg flex items-center">
+                <div className="flex-shrink-0  text-lg flex items-center">
                   <Link to="/">WorkOS + Remix</Link>
                 </div>
               </div>
@@ -111,23 +111,21 @@ export function Navbar() {
                     <PersonIcon className="h-7 w-7 text-white  bg-indigo-500 p-1.5 rounded-full" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-sm font-medium text-gray-500">
-                      {user?.email}
-                    </div>
+                    <div className="text-sm  text-gray-500">{user?.email}</div>
                   </div>
                 </div>
                 <div className="mt-3 space-y-1">
                   <Disclosure.Button
                     as="a"
                     href="/settings"
-                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 sm:px-6"
+                    className="block px-4 py-2 text-base  text-gray-500 hover:text-gray-800 hover:bg-gray-100 sm:px-6"
                   >
                     Settings
                   </Disclosure.Button>
                   <Disclosure.Button
                     as="a"
                     href="/logout"
-                    className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 sm:px-6"
+                    className="block px-4 py-2 text-base  text-gray-500 hover:text-gray-800 hover:bg-gray-100 sm:px-6"
                   >
                     Log out
                   </Disclosure.Button>

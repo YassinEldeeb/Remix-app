@@ -5,7 +5,6 @@ import type {
 } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
-import * as React from 'react';
 import { getUserId, createUserSession } from '~/utils/session.server';
 import { createUser, getUserByEmail } from '~/models/user.server';
 import { safeRedirect, validateEmail } from '~/utils';
@@ -78,34 +77,18 @@ export default function Join() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') ?? undefined;
   const actionData = useActionData() as ActionData;
-  const emailRef = React.useRef<HTMLInputElement>(null);
-  const passwordRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    if (actionData?.errors?.email) {
-      emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
-      passwordRef.current?.focus();
-    }
-  }, [actionData]);
 
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8  my-20">
-        <h1 className="text-4xl text-center text-gray-800 font-medium mb-10">
-          Sign up
-        </h1>
+        <h1 className="text-4xl text-center text-gray-800  mb-10">Sign up</h1>
         <Form method="post" className="space-y-6">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm  text-gray-700">
               Email address
             </label>
             <div className="mt-1">
               <input
-                ref={emailRef}
                 id="email"
                 required
                 autoFocus={true}
@@ -125,16 +108,12 @@ export default function Join() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm  text-gray-700">
               Password
             </label>
             <div className="mt-1">
               <input
                 id="password"
-                ref={passwordRef}
                 name="password"
                 type="password"
                 autoComplete="new-password"

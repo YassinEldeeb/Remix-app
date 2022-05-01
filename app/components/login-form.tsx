@@ -1,17 +1,20 @@
-import { Form, Link } from '@remix-run/react';
+import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
+import { Button } from './shared';
+import { TextInput } from './shared/text-input';
 
-export const LoginForm = ({ actionData, redirectTo, searchParams }) => {
+export const LoginForm = () => {
+  const actionData = useActionData();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/';
+
   return (
     <Form method="post" className="space-y-6">
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="email" className="block text-sm  text-gray-700">
           Email address
         </label>
         <div className="mt-1">
-          <input
+          <TextInput
             id="email"
             required
             autoFocus={true}
@@ -20,32 +23,27 @@ export const LoginForm = ({ actionData, redirectTo, searchParams }) => {
             autoComplete="email"
             aria-invalid={actionData?.errors?.email ? true : undefined}
             aria-describedby="email-error"
-            className="focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 focus-visible:ring-opacity-75 border border-gray-400 focus-visible:border-transparent mt-1 block w-full rounded-md text-sm text-gray-700 placeholder:text-gray-500 p-3"
           />
           {actionData?.errors?.email && (
-            <div className="pt-1 text-red-700" id="email-error">
+            <p className="pt-1 text-red-700" id="email-error">
               {actionData.errors.email}
-            </div>
+            </p>
           )}
         </div>
       </div>
 
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="password" className="block text-sm  text-gray-700">
           Password
         </label>
         <div className="mt-1">
-          <input
+          <TextInput
             id="password"
             name="password"
             type="password"
             autoComplete="current-password"
             aria-invalid={actionData?.errors?.password ? true : undefined}
             aria-describedby="password-error"
-            className="focus:outline-none focus-visible:ring focus-visible:ring-indigo-500 focus-visible:ring-opacity-75 border border-gray-400 focus-visible:border-transparent mt-1 block w-full rounded-md text-sm text-gray-700 placeholder:text-gray-500 p-3"
           />
           {actionData?.errors?.password && (
             <div className="pt-1 text-red-700" id="password-error">
@@ -56,14 +54,9 @@ export const LoginForm = ({ actionData, redirectTo, searchParams }) => {
       </div>
 
       <input type="hidden" name="redirectTo" value={redirectTo} />
-      <button
-        name="_action"
-        value="login"
-        type="submit"
-        className="w-full rounded bg-indigo-500  py-2 px-4 text-white hover:bg-indigo-600 focus:bg-indigo-400"
-      >
+      <Button name="_action" value="login" type="submit">
         Log in
-      </button>
+      </Button>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input

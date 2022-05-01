@@ -1,8 +1,8 @@
 interface LoaderProps {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 }
-export const Loader = ({ width, height }: LoaderProps) => {
+export const Spinner = ({ width = 4, height = 4 }: LoaderProps) => {
   return (
     <svg
       role="status"

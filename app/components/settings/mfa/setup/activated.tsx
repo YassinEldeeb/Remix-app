@@ -1,4 +1,9 @@
-export const Activated = ({ actionData }) => {
+import { CheckIcon } from '@radix-ui/react-icons';
+import { useActionData } from '@remix-run/react';
+
+export const Activated = () => {
+  const actionData = useActionData();
+
   return (
     <div className="flex">
       {actionData?.step === 2 && (
@@ -15,23 +20,9 @@ export const Activated = ({ actionData }) => {
           <>
             <div className="flex items-center">
               <span className="flex absolute bg-indigo-500 -left-4 justify-center items-center w-7 h-7 rounded-full">
-                <svg
-                  className="w-4 h-4 stroke-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={4}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <CheckIcon className="w-4 h-4 text-white" />
               </span>
-              <h2 className="text-lg font-medium">
-                Two-factor authentication activated
-              </h2>
+              <h2 className="text-lg ">Two-factor authentication activated</h2>
             </div>
             <p className="mb-5 mt-3 text-base">
               You have successfully added a second authentication factor for
@@ -42,8 +33,8 @@ export const Activated = ({ actionData }) => {
         ) : (
           <div className="flex">
             <div className="border-l-2 border-white h-6 absolute -left-0.5 -bottom-3"></div>
-            <div className="text-lg font-medium flex items-center mb-3">
-              <span className="flex absolute bg-indigo-500 -left-4 justify-center items-center w-7 h-7 rounded-full text-white font-medium ">
+            <div className="text-lg  flex items-center mb-3">
+              <span className="flex absolute bg-indigo-500 -left-4 justify-center items-center w-7 h-7 rounded-full text-white  ">
                 3
               </span>
               <h2>Two-factor authentication activated</h2>

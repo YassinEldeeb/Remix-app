@@ -4,11 +4,7 @@ import type {
   MetaFunction,
 } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import {
-  useActionData,
-  useSearchParams,
-  useTransition,
-} from '@remix-run/react';
+import { useActionData, useTransition } from '@remix-run/react';
 import { createUserSession, getUserId } from '~/utils/session.server';
 import { verifyLogin } from '~/models/user.server';
 import { safeRedirect, validateEmail } from '~/utils';
@@ -140,7 +136,6 @@ export const action: ActionFunction = async ({ request }) => {
     case 'verify':
       const { authenticationCode, authenticationChallengeId, userId } = values;
 
-      console.log({ authenticationCode, authenticationChallengeId, userId });
       const response = await workos.mfa.verifyFactor({
         authenticationChallengeId: `${authenticationChallengeId}`,
         code: `${authenticationCode}`,
@@ -174,24 +169,14 @@ export const meta: MetaFunction = () => {
 };
 
 export default function LoginPage() {
-  const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') || '/';
   const actionData = useActionData();
   const transition = useTransition();
 
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8 my-20">
-        <h1 className="text-4xl text-center text-gray-800 font-medium mb-10">
-          Log in
-        </h1>
-        {!actionData?.secondFactor && (
-          <LoginForm
-            actionData={actionData}
-            redirectTo={redirectTo}
-            searchParams={searchParams}
-          />
-        )}
+        <h1 className="text-4xl text-center text-gray-800  mb-10">Log in</h1>
+        {!actionData?.secondFactor && <LoginForm />}
         {actionData?.secondFactor && actionData?.totp && (
           <TOTPForm actionData={actionData} transition={transition} />
         )}

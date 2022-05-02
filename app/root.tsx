@@ -1,3 +1,4 @@
+import React from 'react';
 import type {
   LinksFunction,
   LoaderFunction,
@@ -18,7 +19,6 @@ import { Navbar } from './components/layout/navbar';
 import styles from './styles/app.css';
 import { getSession, getUser } from './utils/session.server';
 import type { ToastMessage } from './utils/session.server';
-import React from 'react';
 
 export const links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: styles }];
@@ -31,30 +31,27 @@ export const meta: MetaFunction = () => ({
 });
 
 type LoaderData = {
+  user: Awaited<ReturnType<typeof getUser>>;
   toastMessage: ToastMessage | null;
-  user?: Awaited<ReturnType<typeof getUser>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request);
-  const toastMessage = session.get('toastMessage') as ToastMessage;
+  const { session } = await getSession(request);
   const user = await getUser(request);
+  const toastMessage = session.get('toastMessage') as ToastMessage;
+  console.log(toastMessage);
 
   if (!toastMessage) {
-    return json<LoaderData>({
-      toastMessage: null,
+    return json<LoaderData>({ toastMessage: null, user });
+  }
+
+  return json<LoaderData>(
+    {
+      toastMessage: toastMessage ? toastMessage : null,
       user,
-    });
-  }
-
-  if (!toastMessage.type) {
-    throw new Error('Message should have a type');
-  }
-
-  return json<LoaderData>({
-    toastMessage: !toastMessage ? null : toastMessage,
-    user,
-  });
+    },
+    { headers: { 'Set-Cookie': await sessionStorage.commitSession(session) } }
+  );
 };
 
 export default function App() {

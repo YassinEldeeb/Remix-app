@@ -13,7 +13,7 @@ import {
   Verify,
   Activated,
 } from '~/components/settings/mfa/setup';
-import { Warning } from '~/components/shared/warning';
+import { Alert } from '~/components/shared';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
@@ -127,7 +127,7 @@ const MultiFactorAuthentication = () => {
   return (
     <section className="my-10">
       {data?.totpFactorId ? (
-        <Warning
+        <Alert
           message="Changing your two-factor authentication device will invalidate your
             current one"
         />

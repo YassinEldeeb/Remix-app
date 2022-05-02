@@ -1,9 +1,14 @@
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
-interface WarningProps {
+export type AlertAppearance = 'info' | 'warning' | 'danger';
+
+interface AlertProps {
   message: string;
+  type: AlertAppearance;
 }
-export const Warning = ({ message }: WarningProps) => {
+
+// TODO: add different styles for alerts
+export const Alert = ({ message, type = 'warning' }: AlertProps) => {
   return (
     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-5">
       <div className="flex items-center">

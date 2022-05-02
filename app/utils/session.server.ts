@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/node';
+import { createCookieSessionStorage, json, redirect } from '@remix-run/node';
 import type { Session } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import type { User } from '~/models/user.server';
@@ -22,11 +22,14 @@ const USER_SESSION_KEY = 'userId';
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get('Cookie');
-  return sessionStorage.getSession(cookie);
+  const session = await sessionStorage.getSession(cookie);
+  return {
+    session,
+  };
 }
 
 export async function getUserId(request: Request): Promise<string | undefined> {
-  const session = await getSession(request);
+  const { session } = await getSession(request);
   const userId = session.get(USER_SESSION_KEY);
   return userId;
 }
@@ -74,8 +77,9 @@ export async function createUserSession({
   remember: boolean;
   redirectTo: string;
 }) {
-  const session = await getSession(request);
+  const { session } = await getSession(request);
   session.set(USER_SESSION_KEY, userId);
+
   return redirect(redirectTo, {
     headers: {
       'Set-Cookie': await sessionStorage.commitSession(session, {
@@ -88,7 +92,7 @@ export async function createUserSession({
 }
 
 export async function logout(request: Request) {
-  const session = await getSession(request);
+  const { session } = await getSession(request);
   return redirect('/', {
     headers: {
       'Set-Cookie': await sessionStorage.destroySession(session),
@@ -98,10 +102,13 @@ export async function logout(request: Request) {
 
 export type ToastMessage = { message: string; type: 'success' | 'error' };
 
-export function setSuccessMessage(session: Session, message: string) {
-  session.flash('toastMessage', { message, type: 'success' } as ToastMessage);
-}
-
-export function setErrorMessage(session: Session, message: string) {
-  session.flash('toastMessage', { message, type: 'error' } as ToastMessage);
+export function displayToast(
+  session: Session,
+  message: string,
+  type = 'success'
+) {
+  return session.flash('toastMessage', {
+    message,
+    type,
+  } as ToastMessage);
 }

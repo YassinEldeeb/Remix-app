@@ -12,7 +12,7 @@ import {
   getSession,
   requireUser,
   requireUserId,
-  setSuccessMessage,
+  displayToast,
   sessionStorage,
 } from '~/utils/session.server';
 
@@ -25,7 +25,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 const badRequest = (data) => json(data, { status: 400 });
 
 export const action: ActionFunction = async ({ request }) => {
-  const session = await getSession(request);
+  const { session } = await getSession(request);
   const user = await requireUser(request);
   let formData = await request.formData();
   let { _action } = Object.fromEntries(formData);
@@ -51,12 +51,16 @@ export const action: ActionFunction = async ({ request }) => {
       const res = await updatePassword(user.id, currentPassword, newPassword);
 
       if (res) {
-        setSuccessMessage(
+        displayToast(
           session,
-          'Your password has been updated successfully'
+          'Your password has been updated successfully',
+          'success'
         );
-
-        return redirect('/settings');
+        return redirect('/settings', {
+          headers: {
+            'Set-Cookie': await sessionStorage.commitSession(session),
+          },
+        });
       }
       return res;
 

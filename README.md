@@ -1,4 +1,4 @@
-# WorkOS + Remix
+# Remix app (WIP)
 
 TODO
 

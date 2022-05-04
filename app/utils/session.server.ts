@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, json, redirect } from '@remix-run/node';
+import { createCookieSessionStorage, redirect } from '@remix-run/node';
 import type { Session } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 import type { User } from '~/models/user.server';
@@ -6,7 +6,7 @@ import { getUserById } from '~/models/user.server';
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
 
-export const sessionStorage = createCookieSessionStorage({
+export const cookieSessionStorage = createCookieSessionStorage({
   cookie: {
     name: '__session',
     httpOnly: true,
@@ -22,7 +22,8 @@ const USER_SESSION_KEY = 'userId';
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get('Cookie');
-  const session = await sessionStorage.getSession(cookie);
+
+  const session = await cookieSessionStorage.getSession(cookie);
   return {
     session,
   };
@@ -82,7 +83,7 @@ export async function createUserSession({
 
   return redirect(redirectTo, {
     headers: {
-      'Set-Cookie': await sessionStorage.commitSession(session, {
+      'Set-Cookie': await cookieSessionStorage.commitSession(session, {
         maxAge: remember
           ? 60 * 60 * 24 * 7 // 7 days
           : undefined,
@@ -95,7 +96,7 @@ export async function logout(request: Request) {
   const { session } = await getSession(request);
   return redirect('/', {
     headers: {
-      'Set-Cookie': await sessionStorage.destroySession(session),
+      'Set-Cookie': await cookieSessionStorage.destroySession(session),
     },
   });
 }

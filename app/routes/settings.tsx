@@ -13,12 +13,14 @@ import {
   requireUser,
   requireUserId,
   displayToast,
-  sessionStorage,
+  cookieSessionStorage,
+  createUserSession,
 } from '~/utils/session.server';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
   const userAuthFactors = await getUserAuthFactors(userId);
+
   return userAuthFactors;
 };
 
@@ -56,9 +58,10 @@ export const action: ActionFunction = async ({ request }) => {
           'Your password has been updated successfully',
           'success'
         );
+
         return redirect('/settings', {
           headers: {
-            'Set-Cookie': await sessionStorage.commitSession(session),
+            'Set-Cookie': await cookieSessionStorage.commitSession(session),
           },
         });
       }

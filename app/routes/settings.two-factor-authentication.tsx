@@ -65,18 +65,16 @@ export const action: ActionFunction = async ({ request }) => {
         );
       }
 
+      const smsFactor = await workos.mfa.enrollFactor({
+        type: 'sms',
+        phoneNumber: `${values.phoneNumber}`,
+      });
       try {
-        const smsFactor = await workos.mfa.enrollFactor({
-          type: 'sms',
-          phoneNumber: `${values.phoneNumber}`,
-        });
-
         const smsChallenge = await workos.mfa.challengeFactor({
           authenticationFactorId: smsFactor.id,
         });
         return { smsFactor, smsChallenge, step: 1 };
       } catch (error) {
-        console.log('OOOOPS', error);
         return json({ errors: { message: error } }, { status: 400 });
       }
 

@@ -4,15 +4,18 @@ import type {
   MetaFunction,
 } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { useActionData, useTransition } from '@remix-run/react';
+import { useActionData } from '@remix-run/react';
 import { createUserSession, getUserId } from '~/utils/session.server';
 import { verifyLogin } from '~/models/user.server';
 import { safeRedirect, validateEmail } from '~/utils';
 import { workos } from '~/utils/workos.server';
 import { LoginForm } from '~/components/login-form';
-import { TOTPForm } from '~/components/mfa/totp-form';
-import { SMSForm } from '~/components/mfa/sms-form';
-import { FormSwitcher } from '~/components/mfa/form-switcher';
+import { SMSForm, TOTPForm, FormSwitcher } from '~/components/mfa';
+// import {
+//   VerifyResponse,
+//   VerifyResponseError,
+//   VerifyResponseSuccess,
+// } from '@workos-inc/node/lib/mfa/interfaces/verify-factor-response';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -35,6 +38,7 @@ export const action: ActionFunction = async ({ request }) => {
   switch (_action) {
     case 'login':
       const email = formData.get('email');
+      const password = formData.get('password');
 
       if (!validateEmail(email)) {
         return json<ActionData>(
@@ -42,8 +46,6 @@ export const action: ActionFunction = async ({ request }) => {
           { status: 400 }
         );
       }
-
-      const password = formData.get('password');
 
       if (typeof password !== 'string') {
         return json<ActionData>(
@@ -60,6 +62,7 @@ export const action: ActionFunction = async ({ request }) => {
       }
 
       const user = await verifyLogin(email, password);
+
       if (!user) {
         return json<ActionData>(
           { errors: { email: 'Invalid email or password' } },
@@ -67,8 +70,9 @@ export const action: ActionFunction = async ({ request }) => {
         );
       }
 
-      // user doesn't have 2FA enabled
-      if (!user.totpFactorId && !user.smsFactorId) {
+      const hasMfaEnabled = user.totpFactorId || user.smsFactorId;
+
+      if (!hasMfaEnabled) {
         return createUserSession({
           request,
           userId: user.id,
@@ -77,8 +81,9 @@ export const action: ActionFunction = async ({ request }) => {
         });
       }
 
-      // User has TOTP
-      if (user.totpFactorId && !user.smsFactorId) {
+      const hasTotpEnabled = user.totpFactorId && !user.smsFactorId;
+
+      if (hasTotpEnabled) {
         const totpChallenge = await workos.mfa.challengeFactor({
           authenticationFactorId: `${user.totpFactorId}`,
         });
@@ -86,13 +91,13 @@ export const action: ActionFunction = async ({ request }) => {
         return {
           userId: user.id,
           totpChallengeId: user.totpFactorId && totpChallenge.id,
-          secondFactor: true,
-          totp: true,
+          totpFactorId: user.totpFactorId,
         };
       }
 
-      // user has SMS
-      if (!user.totpFactorId && user.smsFactorId) {
+      const hasSmsEnabled = user.smsFactorId && !user.totpFactorId;
+
+      if (hasSmsEnabled) {
         const smsChallenge = await workos.mfa.challengeFactor({
           authenticationFactorId: `${user.smsFactorId}`,
         });
@@ -100,21 +105,19 @@ export const action: ActionFunction = async ({ request }) => {
         return {
           userId: user.id,
           smsChallengeId: user.smsFactorId && smsChallenge.id,
-          secondFactor: true,
-          sms: true,
+          smsFactorId: user.smsFactorId,
         };
       }
 
-      // user has both
-      if (user.totpFactorId && user.smsFactorId) {
+      const hasAllFactorsEnabled = user.totpFactorId && user.smsFactorId;
+
+      if (hasAllFactorsEnabled) {
         const totpChallenge = await workos.mfa.challengeFactor({
           authenticationFactorId: `${user.totpFactorId}`,
         });
 
         return {
           userId: user.id,
-          bothAuthFactors: true,
-          secondFactor: true,
           totpChallengeId: totpChallenge.id,
           totpFactorId: user.totpFactorId,
           smsFactorId: user.smsFactorId,
@@ -128,9 +131,7 @@ export const action: ActionFunction = async ({ request }) => {
       });
 
       return {
-        bothAuthFactors: true,
         smsChallengeId: smsChallenge.id,
-        secondFactor: true,
       };
 
     case 'verify':
@@ -141,13 +142,22 @@ export const action: ActionFunction = async ({ request }) => {
         code: `${authenticationCode}`,
       });
 
+      console.log(response);
+      // function isVerifyResponseSuccess(
+      //   object: any
+      // ): object is VerifyResponseSuccess {
+      //   return 'valid' in object;
+      // }
+
+      // // TODO: add types
+      // console.log(isVerifyResponseSuccess(response));
+      // TODO when there's an error, the form resets
       if (!response.valid) {
         return json(
           {
             errors: {
               authCode: `Something went wrong. Please try again`,
             },
-            secondFactor: true,
           },
           { status: 400 }
         );
@@ -170,21 +180,24 @@ export const meta: MetaFunction = () => {
 
 export default function LoginPage() {
   const actionData = useActionData();
-  const transition = useTransition();
+
+  const hasSmsEnabled = actionData?.smsFactorId;
+  const hasTotpEnabled = actionData?.totpFactorId;
+  const hasMfaEnabled = hasSmsEnabled || hasTotpEnabled;
+  const hasAllFactorsEnabled = hasTotpEnabled && hasSmsEnabled;
 
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8 my-20">
         <h1 className="text-4xl text-center text-gray-800  mb-10">Log in</h1>
-        {!actionData?.secondFactor && <LoginForm />}
-        {actionData?.secondFactor && actionData?.totp && (
-          <TOTPForm actionData={actionData} transition={transition} />
-        )}
-        {actionData?.secondFactor && actionData?.sms && (
-          <SMSForm actionData={actionData} transition={transition} />
-        )}
-        {actionData?.secondFactor && actionData?.bothAuthFactors && (
-          <FormSwitcher actionData={actionData} transition={transition} />
+        {!hasMfaEnabled && <LoginForm />}
+        {hasAllFactorsEnabled ? (
+          <FormSwitcher />
+        ) : (
+          <>
+            {hasTotpEnabled && <TOTPForm />}
+            {hasSmsEnabled && <SMSForm />}
+          </>
         )}
       </div>
     </div>

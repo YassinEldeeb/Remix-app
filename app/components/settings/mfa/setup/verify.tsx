@@ -1,8 +1,8 @@
 import { CheckIcon } from '@radix-ui/react-icons';
 import { Form, useActionData, useTransition } from '@remix-run/react';
-import VerificationInput from 'react-verification-input';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '~/components/shared';
+import { VerificationInput } from '~/components/mfa';
 
 interface DialogProps {
   message: string;
@@ -29,6 +29,7 @@ const Dialog = ({ message }: DialogProps) => {
     </DialogPrimitive.Root>
   );
 };
+
 const EnrollTotp = ({ actionData, transition }) => {
   return (
     <>
@@ -55,21 +56,8 @@ const EnrollTotp = ({ actionData, transition }) => {
         <Dialog message={`${actionData?.totpFactor?.totp.secret}`} /> instead
       </p>
       <Form method="post">
-        <div className="max-w-xs mt-5 mb-10">
-          <VerificationInput
-            autoFocus
-            placeholder=" "
-            removeDefaultStyles
-            classNames={{
-              container: 'container',
-              character: 'character',
-              characterInactive: 'character--inactive',
-              characterSelected: 'character--selected',
-            }}
-            inputProps={{
-              name: 'authenticationCode',
-            }}
-          />
+        <div className="mt-5 mb-10">
+          <VerificationInput />
         </div>
         <input
           type="hidden"
@@ -133,21 +121,8 @@ const EnrollSMS = ({ actionData, transition }) => {
       </Form>
 
       <Form method="post">
-        <div className="max-w-xs mt-5 mb-10">
-          <VerificationInput
-            placeholder=" "
-            autoFocus
-            removeDefaultStyles
-            classNames={{
-              container: 'container',
-              character: 'character',
-              characterInactive: 'character--inactive',
-              characterSelected: 'character--selected',
-            }}
-            inputProps={{
-              name: 'authenticationCode',
-            }}
-          />
+        <div className="mt-5 mb-10">
+          <VerificationInput />
         </div>
         <input
           type="hidden"

@@ -2,6 +2,12 @@
 
 TODO
 
+- SMS verification form
+  - add resend button
+  - clean up UI
+
+- send email to the user when 2FA is added/disabled
+
 - refactor Code
   - login form
   - signup form
@@ -12,7 +18,6 @@ TODO
 
 - Settings
   - Change password
-    - Toast
     - validation
       - not the old password
 - 2FA

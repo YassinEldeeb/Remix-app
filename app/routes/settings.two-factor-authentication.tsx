@@ -1,28 +1,27 @@
-import { json } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { enrollSMS, enrollTotp } from '~/models/user.server';
 import {
-  enrollSMS,
-  enrollTotp,
-  getUserAuthFactors,
-} from '~/models/user.server';
-import { requireUser, requireUserId } from '~/utils/session.server';
+  cookieSessionStorage,
+  displayToast,
+  getSession,
+  requireUser,
+  requireUserId,
+} from '~/utils/session.server';
 import { workos } from '~/utils/workos.server';
 import {
   SelectFactor,
   Verify,
   Activated,
 } from '~/components/settings/mfa/setup';
-import { Alert } from '~/components/shared';
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
-  const userAuthFactors = await getUserAuthFactors(userId);
-  return userAuthFactors;
+  return await requireUserId(request);
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const user = await requireUser(request);
+  const { session } = await getSession(request);
   let formData = await request.formData();
   let { _action, ...values } = Object.fromEntries(formData);
 
@@ -65,17 +64,24 @@ export const action: ActionFunction = async ({ request }) => {
         );
       }
 
-      const smsFactor = await workos.mfa.enrollFactor({
-        type: 'sms',
-        phoneNumber: `${values.phoneNumber}`,
-      });
       try {
+        const smsFactor = await workos.mfa.enrollFactor({
+          type: 'sms',
+          phoneNumber: `${values.phoneNumber}`,
+        });
+
         const smsChallenge = await workos.mfa.challengeFactor({
           authenticationFactorId: smsFactor.id,
         });
+
         return { smsFactor, smsChallenge, step: 1 };
       } catch (error) {
-        return json({ errors: { message: error } }, { status: 400 });
+        displayToast(
+          session,
+          `Something went wrong, please try again`,
+          'success'
+        );
+        return null;
       }
 
     case 'verify':
@@ -120,16 +126,8 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const MultiFactorAuthentication = () => {
-  const data = useLoaderData();
-
   return (
     <section className="my-10">
-      {data?.totpFactorId ? (
-        <Alert
-          message="Changing your two-factor authentication device will invalidate your
-            current one"
-        />
-      ) : null}
       <h1 className="text-2xl font">Set up two-factor authentication (2FA)</h1>
       <ol className="my-8 relative border-l-2 border-gray-200">
         <SelectFactor />

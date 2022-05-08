@@ -42,7 +42,6 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const { session } = await getSession(request);
   const user = await getUser(request);
-  console.log(user);
   const toastMessage = session.get('toastMessage') as ToastMessage;
 
   if (!toastMessage) {
@@ -77,10 +76,12 @@ export default function App() {
 
     switch (type) {
       case 'success':
-        toast.success(message);
+        toast.success(message, {
+          duration: 4000,
+        });
         break;
       case 'error':
-        toast.error(message);
+        toast.error(message, { duration: 4000 });
         break;
       default:
         throw new Error(`${type} is not handled`);

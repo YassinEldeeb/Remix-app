@@ -9,12 +9,11 @@ import {
   updatePassword,
 } from '~/models/user.server';
 import {
+  cookieSessionStorage,
+  displayToast,
   getSession,
   requireUser,
   requireUserId,
-  displayToast,
-  cookieSessionStorage,
-  createUserSession,
 } from '~/utils/session.server';
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -71,8 +70,8 @@ export const action: ActionFunction = async ({ request }) => {
       if (!user.totpFactorId && !user.smsFactorId) {
         return redirect('/settings/two-factor-authentication');
       }
-
       return await disable2FA(user.id);
+
     case 'deleteAccount':
       await deleteUser(user.id);
       return redirect('/signup');
@@ -82,7 +81,7 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Settings() {
   return (
     <section className="my-10">
-      <h1 className="text-3xl ">Settings</h1>
+      <h1 className="text-3xl">Settings</h1>
       <div className="space-y-10 mt-5">
         <ChangePassword />
         <Factors />

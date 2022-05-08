@@ -11,17 +11,13 @@ import { safeRedirect, validateEmail } from '~/utils';
 import { workos } from '~/utils/workos.server';
 import { LoginForm } from '~/components/login-form';
 import { SMSForm, TOTPForm, FormSwitcher } from '~/components/mfa';
-// import {
-//   VerifyResponse,
-//   VerifyResponseError,
-//   VerifyResponseSuccess,
-// } from '@workos-inc/node/lib/mfa/interfaces/verify-factor-response';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
   if (userId) return redirect('/');
   return null;
 };
+
 interface ActionData {
   errors?: {
     email?: string;
@@ -76,7 +72,7 @@ export const action: ActionFunction = async ({ request }) => {
         return createUserSession({
           request,
           userId: user.id,
-          remember: remember === 'on' ? true : false,
+          remember: remember === 'on',
           redirectTo,
         });
       }
@@ -142,17 +138,7 @@ export const action: ActionFunction = async ({ request }) => {
         code: `${authenticationCode}`,
       });
 
-      console.log(response);
-      // function isVerifyResponseSuccess(
-      //   object: any
-      // ): object is VerifyResponseSuccess {
-      //   return 'valid' in object;
-      // }
-
-      // // TODO: add types
-      // console.log(isVerifyResponseSuccess(response));
-      // TODO when there's an error, the form resets
-      if (!response.valid) {
+      if (response.error) {
         return json(
           {
             errors: {

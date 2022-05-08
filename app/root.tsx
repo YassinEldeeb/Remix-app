@@ -83,8 +83,6 @@ export default function App() {
       case 'error':
         toast.error(message, { duration: 4000 });
         break;
-      default:
-        throw new Error(`${type} is not handled`);
     }
   }, [toastMessage]);
 

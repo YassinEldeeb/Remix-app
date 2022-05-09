@@ -1,14 +1,11 @@
-import { json, redirect } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { enrollSMS, enrollTotp } from '~/prisma-actions/user.server';
-import {
-  cookieSessionStorage,
-  displayToast,
-  getSession,
-  requireUser,
-  requireUserId,
-} from '~/utils/session.server';
-import { workos } from '~/utils/workos.server';
+import { displayToast } from '~/auth/displayToast';
+import { getSession } from '~/auth/getSession';
+import { requireUser } from '~/auth/requireUser';
+import { requireUserId } from '~/auth/requireUserId';
+import { workos } from '~/workos.server';
 import {
   SelectFactor,
   Verify,

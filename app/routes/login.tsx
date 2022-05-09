@@ -10,7 +10,7 @@ import { createUserSession } from '~/auth/createUserSession';
 import { verifyLogin } from '~/prisma-actions/user.server';
 import { redirectSafely } from '~/utils/redirectSafely';
 import { validateEmail } from '~/utils/validateEmail';
-import { workos } from '~/utils/workos.server';
+import { workos } from '~/workos.server';
 import { LoginForm } from '~/components/login-form';
 import { SMSForm, TOTPForm, FormSwitcher } from '~/components/mfa';
 

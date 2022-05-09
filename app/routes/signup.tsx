@@ -5,9 +5,11 @@ import type {
 } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
-import { getUserId, createUserSession } from '~/utils/session.server';
+import { getUserId } from '~/auth/getUserId';
+import { createUserSession } from '~/auth/createUserSession';
 import { createUser, getUserByEmail } from '~/prisma-actions/user.server';
-import { safeRedirect, validateEmail } from '~/utils';
+import { validateEmail } from '~/utils/validateEmail';
+import { redirectSafely } from '~/utils/redirectSafely';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -24,11 +26,11 @@ interface ActionData {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const email = formData.get('email');
-  const password = formData.get('password');
-  const redirectTo = safeRedirect(formData.get('redirectTo'), '/');
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const redirectTo = redirectSafely(formData.get('redirectTo'), '/');
 
-  if (!validateEmail(email)) {
+  if (!validateEmail(email!)) {
     return json<ActionData>(
       { errors: { email: 'Email is invalid' } },
       { status: 400 },

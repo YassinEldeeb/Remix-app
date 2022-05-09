@@ -5,9 +5,11 @@ import type {
 } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { useActionData } from '@remix-run/react';
-import { createUserSession, getUserId } from '~/utils/session.server';
+import { getUserId } from '~/auth/getUserId';
+import { createUserSession } from '~/auth/createUserSession';
 import { verifyLogin } from '~/prisma-actions/user.server';
-import { safeRedirect, validateEmail } from '~/utils';
+import { redirectSafely } from '~/utils/redirectSafely';
+import { validateEmail } from '~/utils/validateEmail';
 import { workos } from '~/utils/workos.server';
 import { LoginForm } from '~/components/login-form';
 import { SMSForm, TOTPForm, FormSwitcher } from '~/components/mfa';
@@ -27,16 +29,16 @@ interface ActionData {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const redirectTo = safeRedirect(formData.get('redirectTo'), '/');
+  const redirectTo = redirectSafely(formData.get('redirectTo'), '/');
   const remember = formData.get('remember');
   const { _action, ...values } = Object.fromEntries(formData);
 
   switch (_action) {
     case 'login':
-      const email = formData.get('email');
-      const password = formData.get('password');
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
 
-      if (!validateEmail(email)) {
+      if (!validateEmail(email!)) {
         return json<ActionData>(
           { errors: { email: 'Email is invalid' } },
           { status: 400 },

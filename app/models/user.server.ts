@@ -1,14 +1,14 @@
-import type { Password, User } from '@prisma/client'
-import bcrypt from 'bcryptjs'
-import { prisma } from '~/utils/db.server'
-export type { User } from '@prisma/client'
+import type { Password, User } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { prisma } from '~/utils/db.server';
+export type { User } from '@prisma/client';
 
 export async function getUserById(userId: User['id']) {
-  return prisma.user.findUnique({ where: { id: userId } })
+  return prisma.user.findUnique({ where: { id: userId } });
 }
 
 export async function getUserByEmail(email: User['email']) {
-  return await prisma.user.findUnique({ where: { email } })
+  return await prisma.user.findUnique({ where: { email } });
 }
 
 export async function getUserAuthFactors(userId: User['id']) {
@@ -18,18 +18,18 @@ export async function getUserAuthFactors(userId: User['id']) {
       smsFactorId: true,
       totpFactorId: true,
     },
-  })
+  });
 }
 
 export async function deleteUser(userId: User['id']) {
   return await prisma.user.delete({
     where: { id: userId },
-  })
+  });
 }
 
 export async function enrollTotp(
   userId: User['id'],
-  totpFactorId: User['totpFactorId']
+  totpFactorId: User['totpFactorId'],
 ) {
   return await prisma.user.update({
     where: {
@@ -38,12 +38,12 @@ export async function enrollTotp(
     data: {
       totpFactorId,
     },
-  })
+  });
 }
 
 export async function enrollSMS(
   userId: User['id'],
-  smsFactorId: User['smsFactorId']
+  smsFactorId: User['smsFactorId'],
 ) {
   return await prisma.user.update({
     where: {
@@ -52,7 +52,7 @@ export async function enrollSMS(
     data: {
       smsFactorId,
     },
-  })
+  });
 }
 
 export async function disable2FA(userId: User['id']) {
@@ -64,13 +64,13 @@ export async function disable2FA(userId: User['id']) {
       smsFactorId: null,
       totpFactorId: null,
     },
-  })
+  });
 }
 
 export async function updatePassword(
   userId: User['id'],
   currentPassword: string,
-  newPassword: string
+  newPassword: string,
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: {
@@ -79,22 +79,22 @@ export async function updatePassword(
     include: {
       password: true,
     },
-  })
+  });
 
   if (!userWithPassword || !userWithPassword.password) {
-    return null
+    return null;
   }
 
   const isValid = await bcrypt.compare(
     currentPassword,
-    userWithPassword.password
-  )
+    userWithPassword.password,
+  );
 
   if (!isValid) {
-    return null
+    return null;
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10)
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   return await prisma.user.update({
     where: {
@@ -107,11 +107,11 @@ export async function updatePassword(
         },
       },
     },
-  })
+  });
 }
 
 export async function createUser(email: User['email'], password: string) {
-  const hashedPassword = await bcrypt.hash(password, 10)
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   return await prisma.user.create({
     data: {
@@ -122,31 +122,31 @@ export async function createUser(email: User['email'], password: string) {
         },
       },
     },
-  })
+  });
 }
 
 export async function verifyLogin(
   email: User['email'],
-  password: Password['hash']
+  password: Password['hash'],
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
     include: {
       password: true,
     },
-  })
+  });
 
   if (!userWithPassword || !userWithPassword.password) {
-    return null
+    return null;
   }
 
-  const isValid = await bcrypt.compare(password, userWithPassword.password)
+  const isValid = await bcrypt.compare(password, userWithPassword.password);
 
   if (!isValid) {
-    return null
+    return null;
   }
 
-  const { password: _password, ...userWithoutPassword } = userWithPassword
+  const { password: _password, ...userWithoutPassword } = userWithPassword;
 
-  return userWithoutPassword
+  return userWithoutPassword;
 }

@@ -1,8 +1,8 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node';
 import type { Session } from '@remix-run/node';
 import invariant from 'tiny-invariant';
-import type { User } from '~/models/user.server';
-import { getUserById } from '~/models/user.server';
+import type { User } from '~/prisma-actions/user.server';
+import { getUserById } from '~/prisma-actions/user.server';
 
 invariant(process.env.SESSION_SECRET, 'SESSION_SECRET must be set');
 
@@ -47,7 +47,7 @@ export async function getUser(request: Request): Promise<null | User> {
 
 export async function requireUserId(
   request: Request,
-  redirectTo: string = new URL(request.url).pathname
+  redirectTo: string = new URL(request.url).pathname,
 ): Promise<string> {
   const userId = await getUserId(request);
   if (!userId) {
@@ -105,7 +105,7 @@ export type ToastMessage = { message: string; type: 'success' | 'error' };
 export function displayToast(
   session: Session,
   message: string,
-  type = 'success'
+  type = 'success',
 ) {
   return session.flash('toastMessage', {
     message,

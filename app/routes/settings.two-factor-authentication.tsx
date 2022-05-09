@@ -1,6 +1,6 @@
 import { json, redirect } from '@remix-run/node';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { enrollSMS, enrollTotp } from '~/models/user.server';
+import { enrollSMS, enrollTotp } from '~/prisma-actions/user.server';
 import {
   cookieSessionStorage,
   displayToast,
@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
       if (!values.authFactorType) {
         return json(
           { errors: { message: 'This field is required' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
       if (values.authFactorType === 'totp') {
@@ -60,7 +60,7 @@ export const action: ActionFunction = async ({ request }) => {
       if (!values.phoneNumber) {
         return json(
           { errors: { message: 'You need to provide a phone number' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -79,7 +79,7 @@ export const action: ActionFunction = async ({ request }) => {
         displayToast(
           session,
           `Something went wrong, please try again`,
-          'success'
+          'success',
         );
         return null;
       }
@@ -94,7 +94,7 @@ export const action: ActionFunction = async ({ request }) => {
       if (authenticationCode.toString().length !== 6) {
         return json(
           { errors: { title: 'Code must be 6 digits' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -108,12 +108,12 @@ export const action: ActionFunction = async ({ request }) => {
           if (isSMSVerification === 'true') {
             await enrollSMS(
               user.id,
-              response.challenge.authentication_factor_id
+              response.challenge.authentication_factor_id,
             );
           } else {
             await enrollTotp(
               user.id,
-              response.challenge.authentication_factor_id
+              response.challenge.authentication_factor_id,
             );
           }
         }

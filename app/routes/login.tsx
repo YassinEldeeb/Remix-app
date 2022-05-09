@@ -6,7 +6,7 @@ import type {
 import { json, redirect } from '@remix-run/node';
 import { useActionData } from '@remix-run/react';
 import { createUserSession, getUserId } from '~/utils/session.server';
-import { verifyLogin } from '~/models/user.server';
+import { verifyLogin } from '~/prisma-actions/user.server';
 import { safeRedirect, validateEmail } from '~/utils';
 import { workos } from '~/utils/workos.server';
 import { LoginForm } from '~/components/login-form';
@@ -39,21 +39,21 @@ export const action: ActionFunction = async ({ request }) => {
       if (!validateEmail(email)) {
         return json<ActionData>(
           { errors: { email: 'Email is invalid' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (typeof password !== 'string') {
         return json<ActionData>(
           { errors: { password: 'Password is required' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (password.length < 8) {
         return json<ActionData>(
           { errors: { password: 'Password is too short' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -62,7 +62,7 @@ export const action: ActionFunction = async ({ request }) => {
       if (!user) {
         return json<ActionData>(
           { errors: { email: 'Invalid email or password' } },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -145,7 +145,7 @@ export const action: ActionFunction = async ({ request }) => {
               authCode: `Something went wrong. Please try again`,
             },
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 

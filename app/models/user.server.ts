@@ -16,69 +16,69 @@ export async function getUserAuthFactors(userId: User['id']) {
     where: { id: userId },
     select: {
       smsFactorId: true,
-      totpFactorId: true,
-    },
+      totpFactorId: true
+    }
   });
 }
 
 export async function deleteUser(userId: User['id']) {
   return await prisma.user.delete({
-    where: { id: userId },
+    where: { id: userId }
   });
 }
 
 export async function enrollTotp(
   userId: User['id'],
-  totpFactorId: User['totpFactorId'],
+  totpFactorId: User['totpFactorId']
 ) {
   return await prisma.user.update({
     where: {
-      id: userId,
+      id: userId
     },
     data: {
-      totpFactorId,
-    },
+      totpFactorId
+    }
   });
 }
 
 export async function enrollSMS(
   userId: User['id'],
-  smsFactorId: User['smsFactorId'],
+  smsFactorId: User['smsFactorId']
 ) {
   return await prisma.user.update({
     where: {
-      id: userId,
+      id: userId
     },
     data: {
-      smsFactorId,
-    },
+      smsFactorId
+    }
   });
 }
 
 export async function disable2FA(userId: User['id']) {
   return await prisma.user.update({
     where: {
-      id: userId,
+      id: userId
     },
     data: {
       smsFactorId: null,
-      totpFactorId: null,
-    },
+      totpFactorId: null
+    }
   });
 }
 
 export async function updatePassword(
   userId: User['id'],
   currentPassword: string,
-  newPassword: string,
+  newPassword: string
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: {
-      id: userId,
+      id: userId
     },
     include: {
-      password: true,
-    },
+      password: true
+    }
   });
 
   if (!userWithPassword || !userWithPassword.password) {
@@ -87,7 +87,7 @@ export async function updatePassword(
 
   const isValid = await bcrypt.compare(
     currentPassword,
-    userWithPassword.password,
+    userWithPassword.password
   );
 
   if (!isValid) {
@@ -98,15 +98,15 @@ export async function updatePassword(
 
   return await prisma.user.update({
     where: {
-      id: userId,
+      id: userId
     },
     data: {
       password: {
         update: {
-          hash: hashedPassword,
-        },
-      },
-    },
+          hash: hashedPassword
+        }
+      }
+    }
   });
 }
 
@@ -118,22 +118,22 @@ export async function createUser(email: User['email'], password: string) {
       email,
       password: {
         create: {
-          hash: hashedPassword,
-        },
-      },
-    },
+          hash: hashedPassword
+        }
+      }
+    }
   });
 }
 
 export async function verifyLogin(
   email: User['email'],
-  password: Password['hash'],
+  password: Password['hash']
 ) {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
     include: {
-      password: true,
-    },
+      password: true
+    }
   });
 
   if (!userWithPassword || !userWithPassword.password) {

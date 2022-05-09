@@ -1,4 +1,4 @@
-import type { Password, User } from '@prisma/client';
+import type { User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { prisma } from '~/utils/db.server';
 export type { User } from '@prisma/client';
@@ -76,7 +76,7 @@ export async function updatePassword(
     where: {
       id: userId,
     },
-    include: {
+    select: {
       password: true,
     },
   });
@@ -101,11 +101,7 @@ export async function updatePassword(
       id: userId,
     },
     data: {
-      password: {
-        update: {
-          hash: hashedPassword,
-        },
-      },
+      password: hashedPassword,
     },
   });
 }
@@ -116,24 +112,14 @@ export async function createUser(email: User['email'], password: string) {
   return await prisma.user.create({
     data: {
       email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
+      password: hashedPassword,
     },
   });
 }
 
-export async function verifyLogin(
-  email: User['email'],
-  password: Password['hash'],
-) {
+export async function verifyLogin(email: User['email'], password: string) {
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
-    include: {
-      password: true,
-    },
   });
 
   if (!userWithPassword || !userWithPassword.password) {
